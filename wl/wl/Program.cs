@@ -81,7 +81,10 @@ namespace wl
             }
 
             OnTime ot = new OnTime(ontimeUrl, ontimeClientId, ontimeClientSecret);
-            ot.Login(ontimeUserName, ontimePassword);
+            if (!calculateOnly)
+            {
+                ot.Login(ontimeUserName, ontimePassword);
+            }
 
             foreach (var logFilePath in logFilePaths)
             {
@@ -115,7 +118,12 @@ namespace wl
             foreach (var log in logs)
             {
                 var logText = log.ToString();
-                var width = Console.BufferWidth - 1;
+                var width = 80;
+                try
+                {
+                    width = Console.BufferWidth - 1;
+                }
+                catch { }
                 var status = Status.Skipped;
 
                 if (logText.Length > width) logText = string.Concat(logText.Substring(0, width - 3), "...");
@@ -127,7 +135,14 @@ namespace wl
                     status = service.CreateWorkLog(log) ? Status.Posted : Status.Failed;
                 }
 
-                WriteStatus(status);
+                try
+                {
+                    WriteStatus(status);
+                }
+                catch 
+                {
+                    Console.WriteLine();
+                }
             }
 
             ShowSummary(logs);
