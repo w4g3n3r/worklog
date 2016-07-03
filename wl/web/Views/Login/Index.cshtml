@@ -1,0 +1,24 @@
+﻿@model web.Models.Account
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Index</h2>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    <div class="row aimbase-loginbox">
+        <div class="aimbase-login">
+            @Html.EditorForModel()
+            @if (ViewBag.AuthenticationFailed == true)
+            {
+                <span>Failed to authenticate, please try again.</span>
+            }
+        </div>
+        <div>
+            <button type="submit">Login</button>
+        </div>
+    </div>
+}
+
