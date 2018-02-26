@@ -18,7 +18,7 @@ namespace wl
 
     public class WorkLog
     {
-        private static Regex pattern = new Regex(@"(\d{1,2}:\d{1,2} (?:AM|PM) \d{1,2}\/\d{1,2}\/\d{4}) ?(\[axo[dft]: ?\d+\])? ?(.*)");
+        private static Regex pattern = new Regex(@"(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}) ?(\[axo[dft]: ?\d+\])? ?(.*)");
         private static Regex taskPattern = new Regex(@"\[(\w+) ?: ?(\d+)\]");
 
         public DateTime Begin { get; set; }
@@ -33,7 +33,7 @@ namespace wl
             {
                 if (Begin == null || End == null) return 0;
 
-                return End.Subtract(Begin).TotalMinutes;
+                return Math.Round(End.Subtract(Begin).TotalMinutes, 2);
             }
         }
 
