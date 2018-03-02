@@ -18,7 +18,7 @@ namespace wl
 
     public class WorkLog
     {
-        private static Regex pattern = new Regex(@"(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}) ?(\[axo[dft]: ?\d+\])? ?(.*)");
+        private static Regex pattern = new Regex(@"(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}) ?(\[axo[dfti]: ?\d+\])? ?(.*)");
         private static Regex taskPattern = new Regex(@"\[(\w+) ?: ?(\d+)\]");
 
         public DateTime Begin { get; set; }
