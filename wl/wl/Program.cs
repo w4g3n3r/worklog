@@ -104,7 +104,9 @@ namespace wl
             {
                 while (!wr.EndOfStream)
                 {
-                    logs.Add(wr.ReadWorkLog());
+                    var log = wr.ReadWorkLog();
+
+                    if (log != null) logs.Add(log);
                 }
             }
 
