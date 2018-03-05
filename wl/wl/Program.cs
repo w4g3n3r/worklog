@@ -104,7 +104,9 @@ namespace wl
             {
                 while (!wr.EndOfStream)
                 {
-                    logs.Add(wr.ReadWorkLog());
+                    var log = wr.ReadWorkLog();
+
+                    if (log != null) logs.Add(log);
                 }
             }
 
@@ -164,7 +166,7 @@ namespace wl
         static void ShowSummary(WorkLogCollection logs)
         {
             var totalCount = logs.Count;
-            var totalDuration = TimeSpan.FromMinutes(logs.Sum(l => l.Minutes));
+            var totalDuration = TimeSpan.FromMinutes(logs.Where(l => l.Type != WorkLogType.Empty).Sum(l => l.Minutes));
 
             var groups = logs
                 .GroupBy(l => l.Type)

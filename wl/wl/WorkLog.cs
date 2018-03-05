@@ -33,7 +33,7 @@ namespace wl
             {
                 if (Begin == null || End == null) return 0;
 
-                return End.Subtract(Begin).TotalMinutes;
+                return Math.Round(End.Subtract(Begin).TotalMinutes, 2);
             }
         }
 
