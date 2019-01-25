@@ -9,8 +9,6 @@ namespace wl
 {
     public class WorkLogReader : StreamReader
     {
-        private WorkLog nextLog = null;
-
         public WorkLogReader(Stream stream) : base(stream) {}
         public WorkLogReader(string path) : base(path) { }
 

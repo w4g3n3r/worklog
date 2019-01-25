@@ -23,11 +23,8 @@ namespace wl
             var logFilePaths = new List<string>();
             bool calculateOnly = false;
             bool showHelp = false;
-            string ontimeUrl = ConfigurationManager.AppSettings["Url"];
-            string ontimeClientId = ConfigurationManager.AppSettings["ClientId"];
-            string ontimeClientSecret = ConfigurationManager.AppSettings["Secret"];
-            string ontimeUserName = ConfigurationManager.AppSettings["Username"];
-            string ontimePassword = ConfigurationManager.AppSettings["Password"];
+            string tempoToken = ConfigurationManager.AppSettings["TempoToken"];
+            string jiraUsername = ConfigurationManager.AppSettings["JiraUsername"];
 
             Console.OutputEncoding = Encoding.UTF8;
 
@@ -39,25 +36,16 @@ namespace wl
                 { "c|calculate", "Calculate hours only. Do not post work logs to OnTime.",
                     v => calculateOnly = (v != null) },
 
-                { "u|username=", "Your OnTime user name.",
-                    v => ontimeUserName = v },
+                { "t|tempoToken=", "Set the token value for the api call.",
+                    t => tempoToken = t },
 
-                { "p|password=", "Your OnTime password.",
-                    v => ontimePassword = v },
-
-                { "d|url=", "The url to your OnTime install.",
-                    v => ontimeUrl = v },
-
-                { "i|clientId=", "Your ontime client ID.",
-                    v => ontimeClientId = v },
-
-                { "s|secret=", "Your ontime client secret.",
-                    v => ontimeClientSecret = v },
+                { "u|jiraUsername=", "Set the username for the api call.",
+                    u => jiraUsername = u },
 
                 { "h|help", "Show this message.",
                     v => showHelp = (v != null) }
             };
-
+            
             try
             {
                 p.Parse(args);
@@ -80,18 +68,14 @@ namespace wl
                 return;
             }
 
-            OnTime ot = new OnTime(ontimeUrl, ontimeClientId, ontimeClientSecret);
-            if (!calculateOnly)
-            {
-                ot.Login(ontimeUserName, ontimePassword);
-            }
+            var service = new Tempo.Client(jiraUsername, tempoToken);
 
             foreach (var logFilePath in logFilePaths)
             {
                 if (File.Exists(logFilePath))
                 {
                     var logs = GetWorklogs(logFilePath);
-                    PostWorklogs(ot, logs, calculateOnly);
+                    PostWorklogs(service, logs, calculateOnly);
                 }
             }
         }
@@ -99,6 +83,7 @@ namespace wl
         static WorkLogCollection GetWorklogs(string logFilePath)
         {
             var logs = new WorkLogCollection();
+            var line = 1;
 
             using (var wr = new WorkLogReader(logFilePath))
             {
@@ -107,6 +92,8 @@ namespace wl
                     var log = wr.ReadWorkLog();
 
                     if (log != null) logs.Add(log);
+
+                    line++;
                 }
             }
 
@@ -114,7 +101,7 @@ namespace wl
             return logs;
         }
 
-        static void PostWorklogs(OnTime service, WorkLogCollection logs, bool calculateOnly)
+        static void PostWorklogs(Tempo.Client service, WorkLogCollection logs, bool calculateOnly)
         {
             Console.WriteLine("Worklogs:");
             foreach (var log in logs)
@@ -166,13 +153,13 @@ namespace wl
         static void ShowSummary(WorkLogCollection logs)
         {
             var totalCount = logs.Count;
-            var totalDuration = TimeSpan.FromMinutes(logs.Where(l => l.Type != WorkLogType.Empty).Sum(l => l.Minutes));
+            var totalDuration = TimeSpan.FromMinutes(logs.Where(l => l.Project != string.Empty).Sum(l => l.Minutes));
 
             var groups = logs
-                .GroupBy(l => l.Type)
+                .GroupBy(l => l.Project)
                 .Select(g => new 
                 { 
-                    Type = g.Key, 
+                    Project = string.IsNullOrEmpty(g.Key) ? "EMPTY" : g.Key, 
                     Count = g.Count(),
                     Percentage = (double)(g.Sum(l => l.Minutes) / totalDuration.TotalMinutes),
                     Duration = TimeSpan.FromMinutes(g.Sum(l => l.Minutes))
@@ -180,7 +167,7 @@ namespace wl
 
             Console.WriteLine("Summary:");
             groups.ToList().ForEach(t => Console.WriteLine("{0,10} {2,3}: {1:g} {3,7:p1}",
-                Enum.GetName(typeof(WorkLogType), t.Type),
+                t.Project,
                 t.Duration,
                 t.Count,
                 t.Percentage));
@@ -189,6 +176,15 @@ namespace wl
                 "Total",
                 totalDuration,
                 totalCount);
+
+            Console.ForegroundColor = ConsoleColor.Red;
+
+            foreach(var error in logs.Errors)
+            {
+                Console.WriteLine(error);
+            }
+
+            Console.ResetColor();
         }
 
         static void ShowHelp(OptionSet p)

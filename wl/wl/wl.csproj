@@ -34,9 +34,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AxosoftAPI.NET">
-      <HintPath>..\packages\AxosoftAPI.NET.5.0.0.0\lib\net45\AxosoftAPI.NET.dll</HintPath>
-    </Reference>
     <Reference Include="Mono.Options">
       <HintPath>..\packages\Mono.Options.4.4.0.0\lib\net4-client\Mono.Options.dll</HintPath>
     </Reference>
@@ -46,6 +43,7 @@
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -53,7 +51,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="OnTime.cs" />
+    <Compile Include="Tempo\Client.cs" />
+    <Compile Include="Tempo\WorkLogBean.cs" />
     <Compile Include="WorkLogCollection.cs" />
     <Compile Include="WorkLogReader.cs" />
     <Compile Include="Program.cs" />

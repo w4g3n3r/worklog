@@ -19,25 +19,25 @@ namespace web.Controllers
             return View(new Account() { RedirectUrl = redirectUrl });
         }
 
-        [HttpPost]
-        public ActionResult Index(Account account)
-        {
-            var ontime = new OnTime(ConfigurationManager.AppSettings["Url"], ConfigurationManager.AppSettings["ClientId"], ConfigurationManager.AppSettings["Secret"]);
-            if (ontime.Login(account.Username, account.Password))
-            {
-                Response.SetCookie(new AuthenticationCookie() 
-                { 
-                    Username = account.Username, 
-                    Password = account.Password, 
-                    IsAuthenticated = true, 
-                    Timeout = DateTime.UtcNow.AddMinutes(20).Ticks 
-                }.ToCookie());
-                Response.Redirect(account.RedirectUrl);
-            }
+        //[HttpPost]
+        //public ActionResult Index(Account account)
+        //{
+        //    var ontime = new OnTime(ConfigurationManager.AppSettings["Url"], ConfigurationManager.AppSettings["ClientId"], ConfigurationManager.AppSettings["Secret"]);
+        //    if (ontime.Login(account.Username, account.Password))
+        //    {
+        //        Response.SetCookie(new AuthenticationCookie() 
+        //        { 
+        //            Username = account.Username, 
+        //            Password = account.Password, 
+        //            IsAuthenticated = true, 
+        //            Timeout = DateTime.UtcNow.AddMinutes(20).Ticks 
+        //        }.ToCookie());
+        //        Response.Redirect(account.RedirectUrl);
+        //    }
 
-            ViewBag.AuthenticationFailed = true;
+        //    ViewBag.AuthenticationFailed = true;
 
-            return View(account);
-        }
+        //    return View(account);
+        //}
 	}
 }
