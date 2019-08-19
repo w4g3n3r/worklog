@@ -52,7 +52,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Tempo\Client.cs" />
-    <Compile Include="Tempo\WorkLogBean.cs" />
+    <Compile Include="Tempo\WorkLog.cs" />
     <Compile Include="WorkLogCollection.cs" />
     <Compile Include="WorkLogReader.cs" />
     <Compile Include="Program.cs" />

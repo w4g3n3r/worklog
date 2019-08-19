@@ -33,7 +33,7 @@ namespace wl
                 { "l|log=", "The path to a log file to parse. Multiple -l options can be specified on the command line.",
                     v => logFilePaths.Add(v) },
 
-                { "c|calculate", "Calculate hours only. Do not post work logs to OnTime.",
+                { "c|calculate", "Calculate hours only. Do not post work logs to Tempo.",
                     v => calculateOnly = (v != null) },
 
                 { "t|tempoToken=", "Set the token value for the api call.",

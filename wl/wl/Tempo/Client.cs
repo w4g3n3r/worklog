@@ -13,7 +13,7 @@ namespace wl.Tempo
     {
         private string username;
         private string clientSecret;
-        private const string uri = "https://api.tempo.io/rest-legacy/tempo-timesheets/3/worklogs";
+        private const string uri = "https://api.tempo.io/core/3/worklogs";
 
         public Client(string username, string clientSecret)
         {
@@ -21,35 +21,29 @@ namespace wl.Tempo
             this.clientSecret = clientSecret;
         }
 
-        public bool CreateWorkLog(WorkLog wl)
+        public bool CreateWorkLog(wl.WorkLog wl)
         {
             if (wl.TaskId == 0) return true;
 
-            var workLogBean = new WorkLogBean
+            var workLogBean = new WorkLog
             {
+                IssueKey = string.Join("-", wl.Project, wl.TaskId.ToString()),
                 TimeSpent = new TimeSpan(0, (int)wl.Minutes, 0),
-                StartTime = wl.Begin,
-                Comment = wl.Message,
-                Author = new Author
-                {
-                    Name = username
-                },
-                Issue = new Issue
-                {
-                    Key = string.Join("-", wl.Project, wl.TaskId.ToString())
-                }
+                Start = wl.Begin,
+                Description = wl.Message,
+                AuthorAccountId = username
             };
 
             return PostWorklog(workLogBean);
         }
 
-        private bool PostWorklog(WorkLogBean workLogBean)
+        private bool PostWorklog(WorkLog workLogBean)
         {
-            var javascriptSerializer = new DataContractJsonSerializer(typeof(WorkLogBean), new DataContractJsonSerializerSettings
+            var javascriptSerializer = new DataContractJsonSerializer(typeof(WorkLog), new DataContractJsonSerializerSettings
             {
                 UseSimpleDictionaryFormat = true,
                 EmitTypeInformation = System.Runtime.Serialization.EmitTypeInformation.Never,
-                KnownTypes = new[] { typeof(WorkLogBean) },
+                KnownTypes = new[] { typeof(WorkLog) },
                 DateTimeFormat = new System.Runtime.Serialization.DateTimeFormat("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff")
             });
 
