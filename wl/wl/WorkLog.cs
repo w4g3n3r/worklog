@@ -7,25 +7,16 @@ using System.Threading.Tasks;
 
 namespace wl
 {
-    public enum WorkLogType
-    {
-        Empty = 0,
-        Features = 1,
-        Defects = 2,
-        Tasks = 3,
-        Incidents = 4
-    }
-
     public class WorkLog
     {
-        private static Regex pattern = new Regex(@"^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}) ?(\[axo[dfti]: ?\d+\])? ?(.*)");
-        private static Regex taskPattern = new Regex(@"\[(\w+) ?: ?(\d+)\]");
+        private static Regex pattern = new Regex(@"(\d{1,2}:\d{1,2} (?:AM|PM) \d{1,2}\/\d{1,2}\/\d{4}) ?(\[\w+(:|\-) {0,1}\d+\])? ?(.*)");
+        private static Regex taskPattern = new Regex(@"\[(\w+)(:|\-) {0,1}(\d+)\]");
 
         public DateTime Begin { get; set; }
         public DateTime End { get; set; }
         public int TaskId { get; set; }
         public string Message { get; set; }
-        public WorkLogType Type { get; set; }
+        public string Project { get; set; }
 
         public double Minutes
         {
@@ -39,11 +30,9 @@ namespace wl
 
         public override string ToString()
         {
-
-            return string.Format("{0,10:t} ({4,3} min) {2,4}:{1,4} {3}",
+            return string.Format("{0,10:t} ({3,3} min) {1,8} {2}",
                 Begin,
-                TaskId > 0 ? TaskId.ToString() : "----",
-                TaskTypeString(Type),
+                TaskId > 0 ? string.Join("-", Project, TaskId.ToString()) : "        ",
                 Message,
                 Minutes);
         }
@@ -58,20 +47,19 @@ namespace wl
 
             var time = match.Groups[1].Value;
             var task = match.Groups[2].Value;
-            var message = match.Groups[3].Value;
+            var message = match.Groups[4].Value;
 
             DateTime begin;
             if (!string.IsNullOrEmpty(time) && DateTime.TryParse(time, out begin))
             {
                 wl.Begin = begin;
             }
-
-            WorkLogType type;
+            
             int taskId;
-            if (!string.IsNullOrEmpty(task) && TryParseTask(task, out taskId, out type))
+            if (!string.IsNullOrEmpty(task) && TryParseTask(task, out taskId, out string project))
             {
                 wl.TaskId = taskId;
-                wl.Type = type;
+                wl.Project = project;
             }
 
             wl.Message = message;
@@ -79,47 +67,21 @@ namespace wl
             return wl;
         }
 
-        private static bool TryParseTask(string task, out int taskId, out WorkLogType type)
+        private static bool TryParseTask(string task, out int taskId, out string project)
         {
             taskId = 0;
-            type = WorkLogType.Empty;
+            project = string.Empty;
 
             if (!taskPattern.IsMatch(task)) return false;
 
             var match = taskPattern.Match(task);
 
-            var typeText = match.Groups[1].Value;
-            type = new WorkLog().TaskTypeEnum(typeText);
+            project = match.Groups[1].Value;
 
-            if (!int.TryParse(match.Groups[2].Value, out taskId))
+            if (!int.TryParse(match.Groups[3].Value, out taskId))
                 return false;
 
             return true;
-        }
-
-        private string TaskTypeString(WorkLogType type)
-        {
-            switch (type)
-            {
-                case WorkLogType.Defects: return "AXOD";
-                case WorkLogType.Features: return "AXOF";
-                case WorkLogType.Incidents: return "AXOI";
-                case WorkLogType.Tasks: return "AXOT";
-                default: return "----";
-            }
-        }
-
-        private WorkLogType TaskTypeEnum(string type)
-        {
-            type = type.ToUpper();
-            switch (type)
-            {
-                case "AXOD": return WorkLogType.Defects;
-                case "AXOF": return WorkLogType.Features;
-                case "AXOI": return WorkLogType.Incidents;
-                case "AXOT": return WorkLogType.Tasks;
-                default: return WorkLogType.Empty;
-            }
         }
     }
 }
