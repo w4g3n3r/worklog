@@ -9,7 +9,7 @@ namespace wl
 {
     public class WorkLog
     {
-        private static Regex pattern = new Regex(@"(\d{1,2}:\d{1,2} (?:AM|PM) \d{1,2}\/\d{1,2}\/\d{4}) ?(\[\w+(:|\-) {0,1}\d+\])? ?(.*)");
+        private static Regex pattern = new Regex(@"^(\d{4}(?:-\d{2}){2}\s\d{2}(?::\d{2}){2}) ?(\[[A-Z]+(:|\-)\s?\d+\])?\s?(.*)");
         private static Regex taskPattern = new Regex(@"\[(\w+)(:|\-) {0,1}(\d+)\]");
 
         public DateTime Begin { get; set; }
@@ -62,7 +62,7 @@ namespace wl
                 wl.Project = project;
             }
 
-            wl.Message = message;
+            wl.Message = $"{task} {message}";
 
             return wl;
         }
