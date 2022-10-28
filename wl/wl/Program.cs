@@ -172,10 +172,23 @@ namespace wl
                 t.Count,
                 t.Percentage));
 
-            Console.WriteLine("{0,10} {2,3}: {1:g}",
-                "Total",
-                totalDuration,
-                totalCount);
+            var nonBillableDuration = groups.ToList().Where(g => g.Project == "EMPTY").FirstOrDefault()?.Duration;
+
+            Console.Write("{0,10} {1,3}: ", "Total", totalCount);
+
+            if (nonBillableDuration == null)
+            {
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("{0:g}", totalDuration);
+            }
+            else
+            {
+                var billableDuration = totalDuration.Subtract((TimeSpan)nonBillableDuration);
+
+                Console.Write("{0:g} - {1:g} = ", totalDuration, nonBillableDuration);
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("{0:g}", billableDuration);
+            }
 
             Console.ForegroundColor = ConsoleColor.Red;
 
